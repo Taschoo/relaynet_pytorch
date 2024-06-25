@@ -46,8 +46,16 @@ class DiceLoss(_Loss):
             weights : C FloatTensor
             ignore_index : int index to ignore from loss
             """
+        
+        print(f"--> DiceLoss: output.shape {output.shape}  target.shape {target.shape}")
+        
+        print(f"--> DiceLoss: target unique values: {torch.unique(target)}")
+            
+        #print(f"--> DiceLoss: output {output}")
+        
+        #print(f"--> DiceLoss: target {target}")
+        
         eps = 0.0001
-
         output = output.exp()
         encoded_target = output.detach() * 0
         if ignore_index is not None:
@@ -58,13 +66,23 @@ class DiceLoss(_Loss):
             mask = mask.unsqueeze(1).expand_as(encoded_target)
             encoded_target[mask] = 0
         else:
-            encoded_target.scatter_(1, target.unsqueeze(1), 1)
+            encoded_target.scatter_(1, target.unsqueeze(1), 1) # !!? Hier Fehler
 
         if weights is None:
-            weights = 1
-
+            weights = 1      
+       
+        print(f"--> DiceLoss: encoded_target {encoded_target.shape}")
+            
         intersection = output * encoded_target
-        numerator = 2 * intersection.sum(0).sum(1).sum(1)
+        
+        print(f"--> DiceLoss: intersection shape {intersection.shape}")
+               
+        #print(f"--> DiceLoss: intersection {intersection}")
+        
+        #numerator = 2 * intersection.sum(0).sum(1).sum(1)# Original
+        
+        numerator = 2 * intersection.sum(dim=1).sum(dim=1).sum(dim=1)# ChatGPT ??!
+        
         denominator = output + encoded_target
 
         if ignore_index is not None:
@@ -78,7 +96,7 @@ class DiceLoss(_Loss):
 class CrossEntropyLoss2d(nn.Module):
     def __init__(self, weight=None, size_average=True):
         super(CrossEntropyLoss2d, self).__init__()
-        self.nll_loss = nn.CrossEntropyLoss(weight, size_average)
+        self.nll_loss = nn.CrossEntropyLoss(weight, reduction='mean')
 
     def forward(self, inputs, targets):
         return self.nll_loss(inputs, targets)
@@ -91,9 +109,19 @@ class CombinedLoss(nn.Module):
         self.dice_loss = DiceLoss()
 
     def forward(self, input, target, weight):
+        
+        print(f" * CombinedLoss forward: target unique values: {torch.unique(target)}")
+        
+        target = F.pad(target, (0, 0, 0, 5))
+        
+        print(f"target shape: {target.shape}")
+        
         # TODO: why?
         target = target.type(torch.LongTensor).cuda()
-        input_soft = F.softmax(input,dim=1)
+        input_soft = F.softmax(input,dim=1)       
+        
+        print(f"input_soft shape: {input_soft.shape}, target shape: {target.shape}")
+        
         y2 = torch.mean(self.dice_loss(input_soft, target))
         y1 = torch.mean(torch.mul(self.cross_entropy_loss.forward(input, target), weight))
         y = y1 + y2

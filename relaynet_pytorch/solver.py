@@ -84,7 +84,6 @@ class Solver(object):
         create_exp_directory(exp_dir_name)
 
         for epoch in range(num_epochs):
-            scheduler.step()
             for i_batch, sample_batched in enumerate(train_loader):
                 X = Variable(sample_batched[0])
                 y = Variable(sample_batched[1])
@@ -116,4 +115,5 @@ class Solver(object):
                 # self.val_acc_history.append(val_accuracy)
             print('[Epoch : ' + str(epoch) + '/' + str(num_epochs) + '] : ' + str(loss.data[0]))
             model.save('models/' + exp_dir_name + '/relaynet_epoch' + str(epoch + 1) + '.model')
+            scheduler.step()
         print('FINISH.')

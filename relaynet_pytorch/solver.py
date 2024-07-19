@@ -88,6 +88,7 @@ class Solver(object):
                 X = Variable(sample_batched[0])
                 y = Variable(sample_batched[1])
                 w = Variable(sample_batched[2])
+                print(f"X: {X.shape} \n y: {y.shape} \n w: {w.shape} \n ")
 
                 if model.is_cuda:
                     X, y, w = X.cuda(), y.cuda(), w.cuda()

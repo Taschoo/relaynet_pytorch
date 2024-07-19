@@ -112,10 +112,9 @@ class CombinedLoss(nn.Module):
         
         print(f" * CombinedLoss forward: target unique values: {torch.unique(target)}")
         
-        target = F.pad(target, (0, 0, 0, 5))
-        
         print(f"target shape: {target.shape}")
         
+        #target = F.pad(target, (0, 0, 5, 5))
         # TODO: why?
         target = target.type(torch.LongTensor).cuda()
         input_soft = F.softmax(input,dim=1)       

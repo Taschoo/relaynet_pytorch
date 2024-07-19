@@ -42,8 +42,9 @@ class ReLayNet(nn.Module):
         self.classifier = sm.ClassifierBlock(params)
 
     def forward(self, input):
+        #print(f"net.forward input.shape: {input.shape}")
         
-        input = F.pad(input, (0, 0, 0, 5))
+        #input = F.pad(input, (0, 0, 5, 5))
         print(f"net.forward input.shape: {input.shape}")
         
         print('-----------------------------------')

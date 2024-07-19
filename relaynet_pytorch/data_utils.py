@@ -44,14 +44,18 @@ def get_imdb_data():
     a_group_key = list(set.keys())[0]
     set = list(set[a_group_key])
     set = np.squeeze(np.asarray(set))
+    
     sz = Data.shape
     Data = Data.reshape([sz[0], 1, sz[1], sz[2]])
-    Data = Data[:, :, 61:573, :]
-    weights = Label[:, 1, 61:573, :]
-    Label = Label[:, 0, 61:573, :]
+    #Data = Data[:, :, 61:573, :]
+    #weights = Label[:, 1, 61:573, :]
+    #Label = Label[:, 0, 61:573, :]
+    weights = Label[:, 1, :, :]
+    Label = Label[:, 0, :, :]
     sz = Label.shape
     Label = Label.reshape([sz[0], 1, sz[1], sz[2]])
     weights = weights.reshape([sz[0], 1, sz[1], sz[2]])
+    
     train_id = set == 1
     test_id = set == 3
 
